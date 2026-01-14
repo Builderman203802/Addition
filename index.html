@@ -5,174 +5,48 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>LinkHub</title>
   <style>
-    * {
-      box-sizing: border-box;
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-    }
+    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
+    body { margin: 0; background: #f0f2f5; }
 
-    body {
-      margin: 0;
-      background: #f0f2f5;
-      color: #111827;
-    }
+    header { background: #6366f1; color: white; padding: 14px; text-align: center; font-size: 1.4rem; font-weight: bold; }
 
-    header {
-      position: sticky;
-      top: 0;
-      background: #6366f1;
-      color: white;
-      padding: 14px;
-      text-align: center;
-      font-size: 1.3rem;
-      font-weight: bold;
-      z-index: 10;
-    }
+    nav { display: flex; justify-content: space-around; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    nav button { flex: 1; padding: 14px; border: none; background: none; font-size: 1rem; cursor: pointer; }
+    nav button.active { color: #6366f1; font-weight: bold; border-bottom: 3px solid #6366f1; }
 
-    /* Tabs */
-    .tabs {
-      display: flex;
-      background: white;
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-    }
+    main { max-width: 520px; margin: auto; padding: 20px; }
+    section { display: none; }
+    section.active { display: block; }
 
-    .tab {
-      flex: 1;
-      padding: 12px;
-      text-align: center;
-      font-weight: 600;
-      cursor: pointer;
-      color: #374151;
-    }
+    .controls { display: flex; gap: 10px; margin-bottom: 16px; }
+    .controls input, .controls select { flex: 1; padding: 12px; border-radius: 10px; border: none; }
 
-    .tab.active {
-      color: #6366f1;
-      border-bottom: 3px solid #6366f1;
-    }
+    .card { background: white; border-radius: 14px; padding: 14px; display: flex; align-items: center; gap: 12px; box-shadow: 0 6px 14px rgba(0,0,0,0.1); margin-bottom: 12px; }
+    .card img { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; }
+    .card a { font-weight: 600; color: #111827; text-decoration: none; }
+    .category { font-size: 0.8rem; color: #6b7280; }
 
-    main {
-      padding: 20px;
-      max-width: 520px;
-      margin: auto;
-    }
+    .delete { margin-left: auto; background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #ef4444; }
 
-    .hidden { display: none; }
-
-    .controls {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 16px;
-    }
-
-    .controls input,
-    .controls select {
-      flex: 1;
-      padding: 12px;
-      border-radius: 12px;
-      border: none;
-      font-size: 1rem;
-      box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-    }
-
-    .links {
-      display: flex;
-      flex-direction: column;
-      gap: 14px;
-    }
-
-    .card {
-      background: white;
-      padding: 14px;
-      border-radius: 16px;
-      box-shadow: 0 6px 14px rgba(0,0,0,0.12);
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-
-    .card img {
-      width: 48px;
-      height: 48px;
-      border-radius: 10px;
-      object-fit: cover;
-    }
-
-    .card-info {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-    }
-
-    .card a {
-      text-decoration: none;
-      color: #1f2933;
-      font-weight: 600;
-    }
-
-    .category {
-      font-size: 0.75rem;
-      color: #6b7280;
-    }
-
-    .delete {
-      background: none;
-      border: none;
-      font-size: 1.1rem;
-      cursor: pointer;
-      color: #ef4444;
-    }
-
-    .add-panel {
-      position: fixed;
-      bottom: 0;
-      left: 0;
-      right: 0;
-      background: white;
-      padding: 16px;
-      box-shadow: 0 -6px 20px rgba(0,0,0,0.15);
-      border-top-left-radius: 20px;
-      border-top-right-radius: 20px;
-    }
-
-    .add-panel input,
-    .add-panel select {
-      width: 100%;
-      padding: 12px;
-      margin-bottom: 10px;
-      border-radius: 12px;
-      border: 1px solid #d1d5db;
-    }
-
-    .add-panel button {
-      width: 100%;
-      padding: 14px;
-      border: none;
-      border-radius: 14px;
-      background: #6366f1;
-      color: white;
-      font-size: 1.05rem;
-      font-weight: bold;
-      cursor: pointer;
-    }
-
-    footer { height: 260px; }
+    input, select, button { width: 100%; padding: 14px; margin-bottom: 10px; border-radius: 10px; border: 1px solid #d1d5db; }
+    .primary { background: #6366f1; color: white; border: none; font-weight: bold; }
   </style>
 </head>
 <body>
 
 <header>LinkHub</header>
 
-<div class="tabs">
-  <div class="tab active" onclick="showTab('linksTab', this)">Links</div>
-  <div class="tab" onclick="showTab('addTab', this)">Add</div>
-  <div class="tab" onclick="showTab('aboutTab', this)">About</div>
-</div>
+<nav>
+  <button class="active" onclick="showTab('links', this)">Links</button>
+  <button onclick="showTab('add', this)">Add</button>
+  <button onclick="showTab('about', this)">About</button>
+</nav>
 
 <main>
-  <!-- LINKS TAB -->
-  <section id="linksTab">
+  <section id="links" class="active">
     <div class="controls">
-      <input type="text" id="searchBar" placeholder="Search links..." onkeyup="renderLinks()" />
-      <select id="filterCategory" onchange="renderLinks()">
+      <input id="search" placeholder="Search links" onkeyup="renderLinks()" />
+      <select id="filter" onchange="renderLinks()">
         <option value="all">All</option>
         <option value="school">School</option>
         <option value="social">Social</option>
@@ -180,112 +54,77 @@
         <option value="other">Other</option>
       </select>
     </div>
-    <div class="links" id="linksContainer"></div>
+    <div id="list"></div>
   </section>
 
-  <!-- ADD TAB -->
-  <section id="addTab" class="hidden">
-    <input type="text" id="linkName" placeholder="Link name" />
-    <input type="url" id="linkURL" placeholder="https://example.com" />
-    <input type="url" id="linkImage" placeholder="Image URL (optional)" />
-    <select id="linkCategory">
+  <section id="add">
+    <input id="name" placeholder="Link name" />
+    <input id="url" placeholder="https://example.com" />
+    <input id="image" placeholder="Image URL (optional)" />
+    <select id="category">
       <option value="school">School</option>
       <option value="social">Social</option>
       <option value="tools">Tools</option>
       <option value="other">Other</option>
     </select>
-    <button onclick="addLink()">Add Link</button>
+    <button class="primary" onclick="addLink()">Add Link</button>
   </section>
 
-  <!-- ABOUT TAB -->
-  <section id="aboutTab" class="hidden">
+  <section id="about">
     <h3>About LinkHub</h3>
-    <p>This is a mobile-style web app built with HTML, CSS, and JavaScript.</p>
-    <p>Features include tabs, categories, images, search, and saved links.</p>
+    <p>This is a multi-tab link manager built with HTML, CSS, and JavaScript. Links are saved locally in your browser.</p>
   </section>
 </main>
 
-<footer></footer>
-
 <script>
-  let links = JSON.parse(localStorage.getItem('links')) || [
-    { name: 'Google', url: 'https://www.google.com', category: 'tools', image: 'https://www.google.com/favicon.ico' },
-    { name: 'YouTube', url: 'https://www.youtube.com', category: 'social', image: 'https://www.youtube.com/favicon.ico' }
-  ];
+  let links = JSON.parse(localStorage.getItem('links')) || [];
 
-  function saveLinks() {
-    localStorage.setItem('links', JSON.stringify(links));
+  function showTab(id, btn) {
+    document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
+    document.getElementById(id).classList.add('active');
+    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
   }
 
-  function showTab(id, el) {
-    document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
-    document.getElementById(id).classList.remove('hidden');
-    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-    el.classList.add('active');
-  }
+  function save() { localStorage.setItem('links', JSON.stringify(links)); }
 
   function renderLinks() {
-    const container = document.getElementById('linksContainer');
-    const search = document.getElementById('searchBar').value.toLowerCase();
-    const filter = document.getElementById('filterCategory').value;
-
-    container.innerHTML = '';
+    const list = document.getElementById('list');
+    const search = document.getElementById('search').value.toLowerCase();
+    const filter = document.getElementById('filter').value;
+    list.innerHTML = '';
 
     links
       .filter(l => l.name.toLowerCase().includes(search))
       .filter(l => filter === 'all' || l.category === filter)
-      .forEach((link, index) => {
+      .forEach((l, i) => {
         const card = document.createElement('div');
         card.className = 'card';
 
         const img = document.createElement('img');
-        img.src = link.image || 'https://via.placeholder.com/48';
+        img.src = l.image || 'https://via.placeholder.com/40';
 
         const info = document.createElement('div');
-        info.className = 'card-info';
-
-        const a = document.createElement('a');
-        a.href = link.url;
-        a.target = '_blank';
-        a.textContent = link.name;
-
-        const cat = document.createElement('div');
-        cat.className = 'category';
-        cat.textContent = link.category.toUpperCase();
+        info.innerHTML = `<a href="${l.url}" target="_blank">${l.name}</a><div class="category">${l.category}</div>`;
 
         const del = document.createElement('button');
         del.className = 'delete';
         del.textContent = '🗑';
-        del.onclick = () => deleteLink(index);
+        del.onclick = () => { links.splice(i,1); save(); renderLinks(); };
 
-        info.appendChild(a);
-        info.appendChild(cat);
-        card.appendChild(img);
-        card.appendChild(info);
-        card.appendChild(del);
-        container.appendChild(card);
+        card.append(img, info, del);
+        list.appendChild(card);
       });
   }
 
   function addLink() {
-    const name = linkName.value.trim();
-    const url = linkURL.value.trim();
-    const image = linkImage.value.trim();
-    const category = linkCategory.value;
-
-    if (!name || !url) return alert('Enter name and URL');
-
-    links.push({ name, url, category, image });
-    saveLinks();
-    renderLinks();
-
-    linkName.value = linkURL.value = linkImage.value = '';
-  }
-
-  function deleteLink(i) {
-    links.splice(i, 1);
-    saveLinks();
-    renderLinks();
+    const name = document.getElementById('name').value.trim();
+    const url = document.getElementById('url').value.trim();
+    const image = document.getElementById('image').value.trim();
+    const category = document.getElementById('category').value;
+    if (!name || !url) return alert('Missing name or URL');
+    links.push({ name, url, image, category });
+    save(); renderLinks(); showTab('links', document.querySelector('nav button'));
   }
 
   renderLinks();
