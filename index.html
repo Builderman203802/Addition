@@ -21,27 +21,53 @@
       top: 0;
       background: #6366f1;
       color: white;
-      padding: 16px 20px;
+      padding: 14px;
       text-align: center;
-      font-size: 1.4rem;
+      font-size: 1.3rem;
       font-weight: bold;
       z-index: 10;
     }
 
+    /* Tabs */
+    .tabs {
+      display: flex;
+      background: white;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+
+    .tab {
+      flex: 1;
+      padding: 12px;
+      text-align: center;
+      font-weight: 600;
+      cursor: pointer;
+      color: #374151;
+    }
+
+    .tab.active {
+      color: #6366f1;
+      border-bottom: 3px solid #6366f1;
+    }
+
     main {
       padding: 20px;
-      max-width: 500px;
+      max-width: 520px;
       margin: auto;
     }
 
-    .search {
-      margin-bottom: 20px;
+    .hidden { display: none; }
+
+    .controls {
+      display: flex;
+      gap: 10px;
+      margin-bottom: 16px;
     }
 
-    .search input {
-      width: 100%;
-      padding: 14px;
-      border-radius: 14px;
+    .controls input,
+    .controls select {
+      flex: 1;
+      padding: 12px;
+      border-radius: 12px;
       border: none;
       font-size: 1rem;
       box-shadow: 0 4px 10px rgba(0,0,0,0.1);
@@ -55,27 +81,44 @@
 
     .card {
       background: white;
-      padding: 16px 18px;
+      padding: 14px;
       border-radius: 16px;
       box-shadow: 0 6px 14px rgba(0,0,0,0.12);
       display: flex;
-      justify-content: space-between;
       align-items: center;
+      gap: 12px;
+    }
+
+    .card img {
+      width: 48px;
+      height: 48px;
+      border-radius: 10px;
+      object-fit: cover;
+    }
+
+    .card-info {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
     }
 
     .card a {
       text-decoration: none;
       color: #1f2933;
       font-weight: 600;
-      font-size: 1rem;
+    }
+
+    .category {
+      font-size: 0.75rem;
+      color: #6b7280;
     }
 
     .delete {
       background: none;
       border: none;
-      color: #ef4444;
-      font-size: 1.2rem;
+      font-size: 1.1rem;
       cursor: pointer;
+      color: #ef4444;
     }
 
     .add-panel {
@@ -90,13 +133,13 @@
       border-top-right-radius: 20px;
     }
 
-    .add-panel input {
+    .add-panel input,
+    .add-panel select {
       width: 100%;
-      padding: 14px;
+      padding: 12px;
       margin-bottom: 10px;
       border-radius: 12px;
       border: 1px solid #d1d5db;
-      font-size: 1rem;
     }
 
     .add-panel button {
@@ -106,103 +149,143 @@
       border-radius: 14px;
       background: #6366f1;
       color: white;
-      font-size: 1.1rem;
+      font-size: 1.05rem;
       font-weight: bold;
       cursor: pointer;
     }
 
-    .add-panel button:hover {
-      background: #4f46e5;
-    }
-
-    footer {
-      height: 160px;
-    }
+    footer { height: 260px; }
   </style>
 </head>
 <body>
 
 <header>LinkHub</header>
 
-<main>
-  <div class="search">
-    <input type="text" id="searchBar" placeholder="Search links..." onkeyup="searchLinks()" />
-  </div>
-
-  <div class="links" id="linksContainer"></div>
-</main>
-
-<div class="add-panel">
-  <input type="text" id="linkName" placeholder="Link name" />
-  <input type="url" id="linkURL" placeholder="https://example.com" />
-  <button onclick="addLink()">Add Link</button>
+<div class="tabs">
+  <div class="tab active" onclick="showTab('linksTab', this)">Links</div>
+  <div class="tab" onclick="showTab('addTab', this)">Add</div>
+  <div class="tab" onclick="showTab('aboutTab', this)">About</div>
 </div>
+
+<main>
+  <!-- LINKS TAB -->
+  <section id="linksTab">
+    <div class="controls">
+      <input type="text" id="searchBar" placeholder="Search links..." onkeyup="renderLinks()" />
+      <select id="filterCategory" onchange="renderLinks()">
+        <option value="all">All</option>
+        <option value="school">School</option>
+        <option value="social">Social</option>
+        <option value="tools">Tools</option>
+        <option value="other">Other</option>
+      </select>
+    </div>
+    <div class="links" id="linksContainer"></div>
+  </section>
+
+  <!-- ADD TAB -->
+  <section id="addTab" class="hidden">
+    <input type="text" id="linkName" placeholder="Link name" />
+    <input type="url" id="linkURL" placeholder="https://example.com" />
+    <input type="url" id="linkImage" placeholder="Image URL (optional)" />
+    <select id="linkCategory">
+      <option value="school">School</option>
+      <option value="social">Social</option>
+      <option value="tools">Tools</option>
+      <option value="other">Other</option>
+    </select>
+    <button onclick="addLink()">Add Link</button>
+  </section>
+
+  <!-- ABOUT TAB -->
+  <section id="aboutTab" class="hidden">
+    <h3>About LinkHub</h3>
+    <p>This is a mobile-style web app built with HTML, CSS, and JavaScript.</p>
+    <p>Features include tabs, categories, images, search, and saved links.</p>
+  </section>
+</main>
 
 <footer></footer>
 
 <script>
   let links = JSON.parse(localStorage.getItem('links')) || [
-    { name: 'Google', url: 'https://www.google.com' },
-    { name: 'YouTube', url: 'https://www.youtube.com' },
-    { name: 'GitHub', url: 'https://www.github.com' }
+    { name: 'Google', url: 'https://www.google.com', category: 'tools', image: 'https://www.google.com/favicon.ico' },
+    { name: 'YouTube', url: 'https://www.youtube.com', category: 'social', image: 'https://www.youtube.com/favicon.ico' }
   ];
 
   function saveLinks() {
     localStorage.setItem('links', JSON.stringify(links));
   }
 
+  function showTab(id, el) {
+    document.querySelectorAll('section').forEach(s => s.classList.add('hidden'));
+    document.getElementById(id).classList.remove('hidden');
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+  }
+
   function renderLinks() {
     const container = document.getElementById('linksContainer');
+    const search = document.getElementById('searchBar').value.toLowerCase();
+    const filter = document.getElementById('filterCategory').value;
+
     container.innerHTML = '';
 
-    links.forEach((link, index) => {
-      const card = document.createElement('div');
-      card.className = 'card';
+    links
+      .filter(l => l.name.toLowerCase().includes(search))
+      .filter(l => filter === 'all' || l.category === filter)
+      .forEach((link, index) => {
+        const card = document.createElement('div');
+        card.className = 'card';
 
-      const anchor = document.createElement('a');
-      anchor.href = link.url;
-      anchor.target = '_blank';
-      anchor.textContent = link.name;
+        const img = document.createElement('img');
+        img.src = link.image || 'https://via.placeholder.com/48';
 
-      const del = document.createElement('button');
-      del.className = 'delete';
-      del.innerHTML = '🗑';
-      del.onclick = () => deleteLink(index);
+        const info = document.createElement('div');
+        info.className = 'card-info';
 
-      card.appendChild(anchor);
-      card.appendChild(del);
-      container.appendChild(card);
-    });
+        const a = document.createElement('a');
+        a.href = link.url;
+        a.target = '_blank';
+        a.textContent = link.name;
+
+        const cat = document.createElement('div');
+        cat.className = 'category';
+        cat.textContent = link.category.toUpperCase();
+
+        const del = document.createElement('button');
+        del.className = 'delete';
+        del.textContent = '🗑';
+        del.onclick = () => deleteLink(index);
+
+        info.appendChild(a);
+        info.appendChild(cat);
+        card.appendChild(img);
+        card.appendChild(info);
+        card.appendChild(del);
+        container.appendChild(card);
+      });
   }
 
   function addLink() {
-    const name = document.getElementById('linkName').value.trim();
-    const url = document.getElementById('linkURL').value.trim();
+    const name = linkName.value.trim();
+    const url = linkURL.value.trim();
+    const image = linkImage.value.trim();
+    const category = linkCategory.value;
 
-    if (!name || !url) return alert('Enter a name and URL');
+    if (!name || !url) return alert('Enter name and URL');
 
-    links.push({ name, url });
+    links.push({ name, url, category, image });
     saveLinks();
     renderLinks();
 
-    document.getElementById('linkName').value = '';
-    document.getElementById('linkURL').value = '';
+    linkName.value = linkURL.value = linkImage.value = '';
   }
 
-  function deleteLink(index) {
-    links.splice(index, 1);
+  function deleteLink(i) {
+    links.splice(i, 1);
     saveLinks();
     renderLinks();
-  }
-
-  function searchLinks() {
-    const filter = document.getElementById('searchBar').value.toLowerCase();
-    const cards = document.querySelectorAll('.card');
-
-    cards.forEach(card => {
-      const text = card.textContent.toLowerCase();
-      card.style.display = text.includes(filter) ? 'flex' : 'none';
-    });
   }
 
   renderLinks();
