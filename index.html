@@ -116,6 +116,14 @@ button.primary{
   background:linear-gradient(135deg,#6366f1,#22d3ee);
   color:white;
   cursor:pointer;
+  margin-bottom:8px;
+}
+.button-small{
+  padding:6px 10px;
+  font-size:.85rem;
+  margin-right:6px;
+  border-radius:8px;
+  cursor:pointer;
 }
 .toast{
   position:fixed;
@@ -156,6 +164,9 @@ button.primary{
 </section>
 <section id="stats" class="hidden">
   <div class="card">Total Links: <strong><span id="total"></span></strong></div>
+  <div class="card">Favorites: <strong><span id="favorites"></span></strong></div>
+  <div class="card">Pinned: <strong><span id="pinned"></span></strong></div>
+  <div class="card">Total Clicks: <strong><span id="clicks"></span></strong></div>
 </section>
 </main>
 <div id="toast" class="toast"></div>
@@ -174,7 +185,7 @@ function addLink(){
   const image = document.getElementById('image').value.trim();
   const tag = document.getElementById('tag').value.trim();
   if(!name || !url){ toast('Missing name or URL'); return; }
-  links.unshift({name,url,image,tag,clicks:0});
+  links.unshift({name,url,image,tag,fav:false,pin:false,clicks:0});
   save();
   document.getElementById('name').value='';
   document.getElementById('url').value='';
@@ -185,26 +196,45 @@ function addLink(){
   toast('Link added');
 }
 
+function toggleFav(i){ links[i].fav = !links[i].fav; save(); render(); }
+function togglePin(i){ links[i].pin = !links[i].pin; save(); render(); }
+function deleteLink(i){ links.splice(i,1); save(); render(); toast('Link deleted'); }
+
 function render(){
   const q = document.getElementById('search').value.toLowerCase();
   const list = document.getElementById('list');
   list.innerHTML='';
   links
     .filter(l => l.name.toLowerCase().includes(q) || (l.tag||'').toLowerCase().includes(q))
-    .forEach(l => {
+    .sort((a,b)=>b.pin - a.pin)
+    .forEach((l,i) => {
       const c = document.createElement('div'); c.className='card';
       if(l.image){ const img=document.createElement('img'); img.src=l.image; c.appendChild(img); }
       const a = document.createElement('a'); a.href=l.url; a.textContent=l.name; a.target='_blank';
-      a.onclick=()=>{l.clicks++;save();updateStats()};
+      a.onclick=()=>{l.clicks++; save(); updateStats();};
       c.appendChild(a);
       if(l.tag){ const t=document.createElement('div'); t.className='tag'; t.textContent=l.tag; c.appendChild(t); }
+      const favBtn=document.createElement('button'); favBtn.className='button-small'; favBtn.textContent=l.fav?'⭐':'☆'; favBtn.onclick=()=>toggleFav(i); c.appendChild(favBtn);
+      const pinBtn=document.createElement('button'); pinBtn.className='button-small'; pinBtn.textContent=l.pin?'📌':'📍'; pinBtn.onclick=()=>togglePin(i); c.appendChild(pinBtn);
+      const delBtn=document.createElement('button'); delBtn.className='button-small'; delBtn.textContent='🗑'; delBtn.onclick=()=>deleteLink(i); c.appendChild(delBtn);
       list.appendChild(c);
     });
   updateStats();
 }
 
-function updateStats(){ document.getElementById('total').textContent = links.length; }
-function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2000); }
+function updateStats(){
+  document.getElementById('total').textContent = links.length;
+  document.getElementById('favorites').textContent = links.filter(l=>l.fav).length;
+  document.getElementById('pinned').textContent = links.filter(l=>l.pin).length;
+  document.getElementById('clicks').textContent = links.reduce((sum,l)=>sum+l.clicks,0);
+}
+
+function toast(msg){
+  const t=document.getElementById('toast');
+  t.textContent=msg;
+  t.classList.add('show');
+  setTimeout(()=>t.classList.remove('show'),2000);
+}
 function toggleTheme(){ document.body.classList.toggle('dark'); }
 render();
 </script>
