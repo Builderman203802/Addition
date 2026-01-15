@@ -1,272 +1,212 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>LinkHub</title>
-  <style>
-    * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-    body { margin: 0; background: var(--bg); color: var(--text); transition: background .3s, color .3s; }
-
-    :root {
-      --bg: #f0f2f5;
-      --card: #ffffff;
-      --text: #111827;
-      --primary: #6366f1;
-      --accent: linear-gradient(135deg,#6366f1,#22d3ee);
-    }
-
-    body.dark {
-      --bg: #0f172a;
-      --card: #1e293b;
-      --text: #f8fafc;
-      --primary: #818cf8;
-      --accent: linear-gradient(135deg,#818cf8,#38bdf8);
-    }
-
-    header {
-      background: var(--accent);
-      color: white;
-      padding: 16px;
-      text-align: center;
-      font-size: 1.4rem;
-      font-weight: bold;
-    }
-
-    nav {
-      display: flex;
-      background: var(--card);
-      box-shadow: 0 2px 8px rgba(0,0,0,0.15);
-    }
-
-    nav button {
-      flex: 1;
-      padding: 14px;
-      border: none;
-      background: none;
-      color: var(--text);
-      font-size: 1rem;
-      cursor: pointer;
-    }
-
-    nav button.active {
-      font-weight: bold;
-      border-bottom: 3px solid var(--primary);
-    }
-
-    main { max-width: 520px; margin: auto; padding: 20px; }
-    section { display: none; animation: fade .25s ease; }
-    section.active { display: block; }
-
-    @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
-
-    .controls { display: flex; gap: 10px; margin-bottom: 16px; }
-    .controls input, .controls select {
-      flex: 1; padding: 12px; border-radius: 12px; border: none;
-    }
-
-    .card {
-      background: var(--card);
-      border-radius: 18px;
-      padding: 14px;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-      box-shadow: 0 8px 18px rgba(0,0,0,0.18);
-      margin-bottom: 14px;
-    }
-
-    .card img {
-      width: 44px; height: 44px; border-radius: 10px; object-fit: cover;
-    }
-
-    .card a { color: var(--text); font-weight: 600; text-decoration: none; }
-    .category { font-size: 0.8rem; opacity: .7; }
-
-    .fav, .delete, .pin {
-      background: none; border: none; cursor: pointer; font-size: 1.2rem;
-    }
-
-    .delete { color: #ef4444; }
-
-    input, select, button {
-      width: 100%; padding: 14px; margin-bottom: 12px;
-      border-radius: 14px; border: 1px solid #cbd5f5;
-    }
-
-    .primary {
-      background: var(--accent);
-      color: white;
-      border: none;
-      font-weight: bold;
-    }
-
-    .toast {
-      position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%);
-      background: var(--card); padding: 14px 20px; border-radius: 30px;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.35);
-      display: none; z-index: 99;
-    }
-
-    .stats-box {
-      background: var(--card); padding: 16px; border-radius: 16px;
-      margin-bottom: 12px; box-shadow: 0 6px 14px rgba(0,0,0,0.15);
-    }
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LinkHub</title>
+<style>
+:root{
+  --bg:#f4f5f7;
+  --card:#ffffff;
+  --text:#0f172a;
+  --primary:#6366f1;
+  --accent:#22d3ee;
+}
+body.dark{
+  --bg:#0b1020;
+  --card:#111827;
+  --text:#f9fafb;
+}
+*{box-sizing:border-box;font-family:system-ui,-apple-system,Segoe UI}
+body{
+  margin:0;
+  background:linear-gradient(120deg,var(--bg),#e0e7ff);
+  background-size:400% 400%;
+  animation:bgMove 18s ease infinite;
+  color:var(--text);
+}
+@keyframes bgMove{
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
+header{
+  padding:16px;
+  text-align:center;
+  font-size:1.5rem;
+  font-weight:800;
+  color:white;
+  background:linear-gradient(135deg,#6366f1,#22d3ee,#a855f7);
+  background-size:300% 300%;
+  animation:grad 10s ease infinite;
+}
+@keyframes grad{
+  0%{background-position:0% 50%}
+  50%{background-position:100% 50%}
+  100%{background-position:0% 50%}
+}
+nav{
+  display:flex;
+  justify-content:space-around;
+  background:rgba(255,255,255,.85);
+  backdrop-filter:blur(10px);
+  padding:10px 0;
+}
+nav button{
+  border:none;
+  background:none;
+  font-size:1rem;
+  font-weight:600;
+  cursor:pointer;
+}
+main{max-width:640px;margin:auto;padding:16px}
+.hidden{display:none}
+.card{
+  background:linear-gradient(135deg,var(--card),#eef2ff);
+  padding:14px;
+  border-radius:18px;
+  box-shadow:0 10px 25px rgba(0,0,0,.18);
+  margin-bottom:14px;
+  animation:fadeUp .4s ease;
+}
+@keyframes fadeUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+.card img{
+  width:100%;
+  max-height:160px;
+  object-fit:cover;
+  border-radius:12px;
+  margin-bottom:8px;
+}
+.card a{
+  text-decoration:none;
+  color:var(--text);
+  font-weight:700;
+  font-size:1.05rem;
+}
+.tag{
+  display:inline-block;
+  margin-top:6px;
+  padding:4px 10px;
+  font-size:.7rem;
+  border-radius:999px;
+  background:linear-gradient(135deg,#22d3ee,#6366f1);
+  color:white;
+}
+.controls input{
+  width:100%;
+  padding:12px;
+  border-radius:14px;
+  border:1px solid #c7d2fe;
+  margin-bottom:12px;
+}
+.add input{
+  width:100%;
+  padding:14px;
+  border-radius:14px;
+  border:1px solid #c7d2fe;
+  margin-bottom:12px;
+}
+button.primary{
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:16px;
+  font-size:1rem;
+  font-weight:700;
+  background:linear-gradient(135deg,#6366f1,#22d3ee);
+  color:white;
+  cursor:pointer;
+}
+.toast{
+  position:fixed;
+  bottom:20px;
+  left:50%;
+  transform:translateX(-50%);
+  background:#111827;
+  color:white;
+  padding:12px 20px;
+  border-radius:999px;
+  opacity:0;
+  transition:.3s;
+}
+.toast.show{opacity:1}
+</style>
 </head>
 <body>
-
 <header>LinkHub</header>
-
 <nav>
-  <button class="active" onclick="showTab('links', this)">Links</button>
-  <button onclick="showTab('add', this)">Add</button>
-  <button onclick="showTab('stats', this)">Stats</button>
+  <button onclick="showTab('links')">Links</button>
+  <button onclick="showTab('add')">Add</button>
+  <button onclick="showTab('stats')">Stats</button>
   <button onclick="toggleTheme()">🌙</button>
 </nav>
-
 <main>
-  <section id="links" class="active">
-    <div class="controls">
-      <input id="search" placeholder="Search" onkeyup="renderLinks()" />
-      <select id="filter" onchange="renderLinks()">
-        <option value="all">All</option>
-        <option value="school">School</option>
-        <option value="social">Social</option>
-        <option value="tools">Tools</option>
-        <option value="other">Other</option>
-      </select>
-    </div>
-    <div id="list"></div>
-  </section>
-
-  <section id="add">
-    <input id="name" placeholder="Link name" />
-    <input id="url" placeholder="https://example.com" />
-    <input id="image" placeholder="Image URL (optional)" />
-    <select id="category">
-      <option value="school">School</option>
-      <option value="social">Social</option>
-      <option value="tools">Tools</option>
-      <option value="other">Other</option>
-    </select>
-    <button class="primary" onclick="addLink()">Add Link</button>
-  </section>
-
-  <section id="stats">
-    <div class="stats-box">Total Links: <b id="total"></b></div>
-    <div class="stats-box">Favorites: <b id="favs"></b></div>
-    <div class="stats-box">Pinned: <b id="pins"></b></div>
-    <div class="stats-box">Total Clicks: <b id="clicks"></b></div>
-    <button onclick="exportLinks()">Export Links</button>
-    <input type="file" accept="application/json" onchange="importLinks(event)" />
-  </section>
+<section id="links">
+  <div class="controls">
+    <input id="search" placeholder="Search or tag…" oninput="render()">
+  </div>
+  <div id="list"></div>
+</section>
+<section id="add" class="hidden add">
+  <input id="name" placeholder="Link name">
+  <input id="url" placeholder="https://example.com">
+  <input id="image" placeholder="Image URL (optional)">
+  <input id="tag" placeholder="Tag (school, fun, tools)">
+  <button class="primary" onclick="addLink()">Add Link</button>
+</section>
+<section id="stats" class="hidden">
+  <div class="card">Total Links: <strong><span id="total"></span></strong></div>
+</section>
 </main>
-
-<div class="toast" id="toast"></div>
-
+<div id="toast" class="toast"></div>
 <script>
-  let links = JSON.parse(localStorage.getItem('links')) || [];
+let links = JSON.parse(localStorage.getItem('links')) || [];
+const save = () => localStorage.setItem('links', JSON.stringify(links));
 
-  const els = id => document.getElementById(id);
+function showTab(id){
+  document.querySelectorAll('section').forEach(s=>s.classList.add('hidden'));
+  document.getElementById(id).classList.remove('hidden');
+}
 
-  if (localStorage.getItem('theme') === 'dark') document.body.classList.add('dark');
+function addLink(){
+  const name = document.getElementById('name').value.trim();
+  const url = document.getElementById('url').value.trim();
+  const image = document.getElementById('image').value.trim();
+  const tag = document.getElementById('tag').value.trim();
+  if(!name || !url){ toast('Missing name or URL'); return; }
+  links.unshift({name,url,image,tag,clicks:0});
+  save();
+  document.getElementById('name').value='';
+  document.getElementById('url').value='';
+  document.getElementById('image').value='';
+  document.getElementById('tag').value='';
+  render();
+  showTab('links');
+  toast('Link added');
+}
 
-  function showTab(id, btn) {
-    document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
-    els(id).classList.add('active');
-    document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-    if (btn) btn.classList.add('active');
-    renderStats();
-  }
+function render(){
+  const q = document.getElementById('search').value.toLowerCase();
+  const list = document.getElementById('list');
+  list.innerHTML='';
+  links
+    .filter(l => l.name.toLowerCase().includes(q) || (l.tag||'').toLowerCase().includes(q))
+    .forEach(l => {
+      const c = document.createElement('div'); c.className='card';
+      if(l.image){ const img=document.createElement('img'); img.src=l.image; c.appendChild(img); }
+      const a = document.createElement('a'); a.href=l.url; a.textContent=l.name; a.target='_blank';
+      a.onclick=()=>{l.clicks++;save();updateStats()};
+      c.appendChild(a);
+      if(l.tag){ const t=document.createElement('div'); t.className='tag'; t.textContent=l.tag; c.appendChild(t); }
+      list.appendChild(c);
+    });
+  updateStats();
+}
 
-  function toggleTheme() {
-    document.body.classList.toggle('dark');
-    localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
-    toast('Theme changed');
-  }
-
-  function toast(msg) {
-    const t = els('toast');
-    t.textContent = msg;
-    t.style.display = 'block';
-    setTimeout(() => t.style.display = 'none', 2200);
-  }
-
-  function save() { localStorage.setItem('links', JSON.stringify(links)); }
-
-  function renderLinks() {
-    const list = els('list');
-    const search = els('search').value.toLowerCase();
-    const filter = els('filter').value;
-    list.innerHTML = '';
-
-    links
-      .filter(l => l.name.toLowerCase().includes(search) || l.url.toLowerCase().includes(search))
-      .filter(l => filter === 'all' || l.category === filter)
-      .sort((a,b) => (b.pin - a.pin) || (b.fav - a.fav))
-      .forEach((l, i) => {
-        const card = document.createElement('div'); card.className = 'card';
-
-        const img = document.createElement('img'); img.src = l.image || 'https://via.placeholder.com/44';
-
-        const info = document.createElement('div');
-        info.innerHTML = `<a href="${l.url}" target="_blank" onclick="count(${i})">${l.name}</a><div class="category">${l.category}</div>`;
-
-        const pin = document.createElement('button'); pin.className = 'pin'; pin.textContent = l.pin ? '📌' : '📍';
-        pin.onclick = () => { l.pin = !l.pin; save(); renderLinks(); };
-
-        const fav = document.createElement('button'); fav.className = 'fav'; fav.textContent = l.fav ? '⭐' : '☆';
-        fav.onclick = () => { l.fav = !l.fav; save(); renderLinks(); };
-
-        const del = document.createElement('button'); del.className = 'delete'; del.textContent = '🗑';
-        del.onclick = () => { links.splice(i,1); save(); renderLinks(); toast('Deleted'); };
-
-        card.append(img, info, pin, fav, del);
-        list.appendChild(card);
-      });
-  }
-
-  function addLink() {
-    const name = els('name').value.trim();
-    const url = els('url').value.trim();
-    const image = els('image').value.trim();
-    const category = els('category').value;
-
-    if (!name || !url) { alert('Please enter name and URL'); return; }
-
-    links.push({ name, url, image, category, fav:false, pin:false, clicks:0 });
-    save();
-    els('name').value = els('url').value = els('image').value = '';
-    renderLinks(); toast('Link added'); showTab('links');
-  }
-
-  function count(i) { links[i].clicks++; save(); }
-
-  function renderStats() {
-    els('total').textContent = links.length;
-    els('favs').textContent = links.filter(l=>l.fav).length;
-    els('pins').textContent = links.filter(l=>l.pin).length;
-    els('clicks').textContent = links.reduce((a,b)=>a+b.clicks,0);
-  }
-
-  function exportLinks() {
-    const blob = new Blob([JSON.stringify(links,null,2)], {type:'application/json'});
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = 'links.json'; a.click();
-  }
-
-  function importLinks(e) {
-    const file = e.target.files[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = () => { links = JSON.parse(reader.result); save(); renderLinks(); renderStats(); toast('Imported'); };
-    reader.readAsText(file);
-  }
-
-  renderLinks(); renderStats();
+function updateStats(){ document.getElementById('total').textContent = links.length; }
+function toast(msg){ const t=document.getElementById('toast'); t.textContent=msg; t.classList.add('show'); setTimeout(()=>t.classList.remove('show'),2000); }
+function toggleTheme(){ document.body.classList.toggle('dark'); }
+render();
 </script>
-
 </body>
 </html>
