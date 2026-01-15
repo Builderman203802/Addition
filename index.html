@@ -6,13 +6,27 @@
   <title>LinkHub</title>
   <style>
     * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
-    body { margin: 0; background: #f0f2f5; }
+    body { margin: 0; background: var(--bg); color: var(--text); transition: 0.3s; }
 
-    header { background: #6366f1; color: white; padding: 14px; text-align: center; font-size: 1.4rem; font-weight: bold; }
+    :root {
+      --bg: #f0f2f5;
+      --card: white;
+      --text: #111827;
+      --primary: #6366f1;
+    }
 
-    nav { display: flex; justify-content: space-around; background: white; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
-    nav button { flex: 1; padding: 14px; border: none; background: none; font-size: 1rem; cursor: pointer; }
-    nav button.active { color: #6366f1; font-weight: bold; border-bottom: 3px solid #6366f1; }
+    body.dark {
+      --bg: #111827;
+      --card: #1f2937;
+      --text: #f9fafb;
+      --primary: #818cf8;
+    }
+
+    header { background: var(--primary); color: white; padding: 14px; text-align: center; font-size: 1.4rem; font-weight: bold; }
+
+    nav { display: flex; justify-content: space-around; background: var(--card); box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    nav button { flex: 1; padding: 14px; border: none; background: none; font-size: 1rem; cursor: pointer; color: var(--text); }
+    nav button.active { font-weight: bold; border-bottom: 3px solid var(--primary); }
 
     main { max-width: 520px; margin: auto; padding: 20px; }
     section { display: none; }
@@ -21,15 +35,18 @@
     .controls { display: flex; gap: 10px; margin-bottom: 16px; }
     .controls input, .controls select { flex: 1; padding: 12px; border-radius: 10px; border: none; }
 
-    .card { background: white; border-radius: 14px; padding: 14px; display: flex; align-items: center; gap: 12px; box-shadow: 0 6px 14px rgba(0,0,0,0.1); margin-bottom: 12px; }
+    .card { background: var(--card); border-radius: 14px; padding: 14px; display: flex; align-items: center; gap: 12px; box-shadow: 0 6px 14px rgba(0,0,0,0.1); margin-bottom: 12px; }
     .card img { width: 40px; height: 40px; border-radius: 8px; object-fit: cover; }
-    .card a { font-weight: 600; color: #111827; text-decoration: none; }
-    .category { font-size: 0.8rem; color: #6b7280; }
+    .card a { font-weight: 600; color: var(--text); text-decoration: none; }
+    .category { font-size: 0.8rem; opacity: 0.7; }
 
     .delete { margin-left: auto; background: none; border: none; font-size: 1.2rem; cursor: pointer; color: #ef4444; }
+    .fav { background: none; border: none; font-size: 1.2rem; cursor: pointer; }
 
     input, select, button { width: 100%; padding: 14px; margin-bottom: 10px; border-radius: 10px; border: 1px solid #d1d5db; }
-    .primary { background: #6366f1; color: white; border: none; font-weight: bold; }
+    .primary { background: var(--primary); color: white; border: none; font-weight: bold; }
+
+    .toast { position: fixed; bottom: 20px; left: 50%; transform: translateX(-50%); background: var(--card); padding: 12px 18px; border-radius: 20px; box-shadow: 0 6px 20px rgba(0,0,0,0.3); display: none; }
   </style>
 </head>
 <body>
@@ -39,7 +56,8 @@
 <nav>
   <button class="active" onclick="showTab('links', this)">Links</button>
   <button onclick="showTab('add', this)">Add</button>
-  <button onclick="showTab('about', this)">About</button>
+  <button onclick="showTab('stats', this)">Stats</button>
+  <button onclick="toggleTheme()">🌙</button>
 </nav>
 
 <main>
@@ -70,20 +88,40 @@
     <button class="primary" onclick="addLink()">Add Link</button>
   </section>
 
-  <section id="about">
-    <h3>Learn about LinkHub</h3>
-    <p>This website was created by Christian Magana. Add and click on any link ever!</p>
+  <section id="stats">
+    <h3>Stats</h3>
+    <p>Total Links: <span id="total"></span></p>
+    <p>Favorites: <span id="favs"></span></p>
+    <p>Total Clicks: <span id="clicks"></span></p>
   </section>
 </main>
 
+<div class="toast" id="toast"></div>
+
 <script>
   let links = JSON.parse(localStorage.getItem('links')) || [];
+  let theme = localStorage.getItem('theme') || 'light';
+  if (theme === 'dark') document.body.classList.add('dark');
 
   function showTab(id, btn) {
     document.querySelectorAll('section').forEach(s => s.classList.remove('active'));
     document.getElementById(id).classList.add('active');
     document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-    btn.classList.add('active');
+    if (btn) btn.classList.add('active');
+    renderStats();
+  }
+
+  function toggleTheme() {
+    document.body.classList.toggle('dark');
+    localStorage.setItem('theme', document.body.classList.contains('dark') ? 'dark' : 'light');
+    toast('Theme changed');
+  }
+
+  function toast(msg) {
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.style.display = 'block';
+    setTimeout(() => t.style.display = 'none', 2000);
   }
 
   function save() { localStorage.setItem('links', JSON.stringify(links)); }
@@ -95,8 +133,9 @@
     list.innerHTML = '';
 
     links
-      .filter(l => l.name.toLowerCase().includes(search))
+      .filter(l => l.name.toLowerCase().includes(search) || l.url.toLowerCase().includes(search))
       .filter(l => filter === 'all' || l.category === filter)
+      .sort((a,b) => b.fav - a.fav)
       .forEach((l, i) => {
         const card = document.createElement('div');
         card.className = 'card';
@@ -105,29 +144,42 @@
         img.src = l.image || 'https://via.placeholder.com/40';
 
         const info = document.createElement('div');
-        info.innerHTML = `<a href="${l.url}" target="_blank">${l.name}</a><div class="category">${l.category}</div>`;
+        info.innerHTML = `<a href="${l.url}" target="_blank" onclick="count(${i})">${l.name}</a><div class="category">${l.category}</div>`;
+
+        const fav = document.createElement('button');
+        fav.className = 'fav';
+        fav.textContent = l.fav ? '⭐' : '☆';
+        fav.onclick = () => { l.fav = !l.fav; save(); renderLinks(); };
 
         const del = document.createElement('button');
         del.className = 'delete';
         del.textContent = '🗑';
-        del.onclick = () => { links.splice(i,1); save(); renderLinks(); };
+        del.onclick = () => { links.splice(i,1); save(); renderLinks(); toast('Deleted'); };
 
-        card.append(img, info, del);
+        card.append(img, info, fav, del);
         list.appendChild(card);
       });
   }
 
   function addLink() {
-    const name = document.getElementById('name').value.trim();
-    const url = document.getElementById('url').value.trim();
-    const image = document.getElementById('image').value.trim();
-    const category = document.getElementById('category').value;
-    if (!name || !url) return alert('Missing name or URL');
-    links.push({ name, url, image, category });
-    save(); renderLinks(); showTab('links', document.querySelector('nav button'));
+    const name = nameInput.value.trim();
+    const url = urlInput.value.trim();
+    const image = imageInput.value.trim();
+    const category = categoryInput.value;
+    if (!name || !url) return alert('Missing info');
+    links.push({ name, url, image, category, fav:false, clicks:0 });
+    save(); renderLinks(); toast('Link added'); showTab('links');
   }
 
-  renderLinks();
+  function count(i) { links[i].clicks++; save(); }
+
+  function renderStats() {
+    total.textContent = links.length;
+    favs.textContent = links.filter(l => l.fav).length;
+    clicks.textContent = links.reduce((a,b) => a + b.clicks, 0);
+  }
+
+  renderLinks(); renderStats();
 </script>
 
 </body>
