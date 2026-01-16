@@ -1,30 +1,34 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>LinkHub</title>
   <style>
     * { box-sizing: border-box; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; }
     body { margin:0; background:#f0f2f5; color:#111827; }
-    header { position: sticky; top:0; background:#6366f1; color:white; padding:16px 20px; text-align:center; font-size:1.4rem; font-weight:bold; z-index:10; display:flex; justify-content:center; gap:12px; flex-wrap:wrap; }
-    header button { padding:10px 14px; border:none; border-radius:10px; background:white; color:#6366f1; font-weight:bold; cursor:pointer; }
-    main { padding:20px; max-width:520px; margin:auto; }
-    .controls { display:flex; gap:10px; margin-bottom:16px; }
-    .controls input, .controls select { flex:1; padding:12px; border-radius:12px; border:none; font-size:1rem; box-shadow:0 4px 10px rgba(0,0,0,0.1); }
-    .links { display:flex; flex-direction:column; gap:14px; }
-    .card { background:white; padding:16px 18px; border-radius:16px; box-shadow:0 6px 14px rgba(0,0,0,0.12); display:flex; justify-content:space-between; align-items:center; }
+    header { position: sticky; top:0; background: linear-gradient(135deg,#6366f1,#4f46e5); color:white; padding:12px 16px; display:flex; justify-content:center; gap:8px; flex-wrap:wrap; z-index:10; }
+    header button { padding:8px 12px; border:none; border-radius:10px; background:rgba(255,255,255,0.85); color:#6366f1; font-weight:bold; cursor:pointer; transition:0.3s; }
+    header button:hover { background:rgba(255,255,255,1); }
+    main { padding:16px; max-width:600px; margin:auto; }
+    .controls { display:flex; gap:8px; margin-bottom:14px; flex-wrap:wrap; }
+    .controls input, .controls select { flex:1; padding:10px; border-radius:12px; border:none; font-size:0.95rem; box-shadow:0 3px 8px rgba(0,0,0,0.1); }
+    .links { display:flex; flex-direction:column; gap:12px; }
+    .card { background:white; padding:14px 16px; border-radius:14px; box-shadow:0 4px 10px rgba(0,0,0,0.12); display:flex; justify-content:space-between; align-items:center; }
     .card-info { display:flex; flex-direction:column; }
-    .card a { text-decoration:none; color:#1f2933; font-weight:600; font-size:1rem; }
-    .category { font-size:0.8rem; color:#6b7280; margin-top:4px; }
-    .delete { background:none; border:none; color:#ef4444; font-size:1.2rem; cursor:pointer; }
-    .add-panel { position: fixed; bottom:0; left:0; right:0; background:white; padding:16px; box-shadow:0 -6px 20px rgba(0,0,0,0.15); border-top-left-radius:20px; border-top-right-radius:20px; }
-    .add-panel input, .add-panel select { width:100%; padding:14px; margin-bottom:10px; border-radius:12px; border:1px solid #d1d5db; font-size:1rem; }
-    .add-panel button { width:100%; padding:14px; border:none; border-radius:14px; background:#6366f1; color:white; font-size:1.1rem; font-weight:bold; cursor:pointer; }
-    footer { height:220px; }
-    #chatTab { display:none; padding:20px; max-width:520px; margin:auto; }
-    #messages { height:260px; overflow-y:auto; background:white; border-radius:12px; padding:10px; margin-bottom:10px; }
+    .card a { text-decoration:none; color:#1f2933; font-weight:600; font-size:0.95rem; }
+    .category { font-size:0.75rem; color:#6b7280; margin-top:3px; }
+    .delete { background:none; border:none; color:#ef4444; font-size:1.1rem; cursor:pointer; }
+    .favorite, .pin { background:none; border:none; font-size:1.2rem; cursor:pointer; margin-left:6px; }
+    .add-panel { position: fixed; bottom:0; left:0; right:0; background:white; padding:12px; box-shadow:0 -4px 16px rgba(0,0,0,0.15); border-top-left-radius:18px; border-top-right-radius:18px; }
+    .add-panel input, .add-panel select { width:100%; padding:12px; margin-bottom:8px; border-radius:12px; border:1px solid #d1d5db; font-size:1rem; }
+    .add-panel button { width:100%; padding:12px; border:none; border-radius:14px; background:#6366f1; color:white; font-size:1rem; font-weight:bold; cursor:pointer; transition:0.2s; }
+    .add-panel button:hover { background:#4f46e5; }
+    footer { height:200px; }
+    section { display:none; }
+    #messages { height:250px; overflow-y:auto; background:white; border-radius:12px; padding:10px; margin-bottom:10px; }
     #chatArea { display:none; }
+    @media (max-width:600px) { header button { font-size:0.9rem; padding:6px 10px; } main { padding:12px; } }
   </style>
 </head>
 <body>
@@ -53,22 +57,25 @@
   </section>
 
   <!-- PUBLIC LINKS TAB -->
-  <section id="publicLinksTab" style="display:none;">
+  <section id="publicLinksTab">
     <h2 style="text-align:center;">Public Links</h2>
-    <!-- Future public links content -->
+    <div class="links" id="publicLinksContainer"></div>
   </section>
 
   <!-- CHAT TAB -->
   <section id="chatTab">
     <h2 style="text-align:center;">Live Chat Rooms</h2>
-    <div class="card" style="flex-direction:column; gap:10px;">
+    <div class="card" style="flex-direction:column; gap:8px;">
       <input id="roomName" placeholder="Room name" />
       <input id="roomPassword" type="password" placeholder="Room password" />
-      <button onclick="joinRoom()">Create / Join Room</button>
+      <div style="display:flex; gap:6px; flex-wrap:wrap;">
+        <button onclick="createRoom()">Create Room</button>
+        <button onclick="joinRoom()">Join Room</button>
+      </div>
     </div>
     <div id="chatArea">
       <div id="messages"></div>
-      <div style="display:flex; gap:10px;">
+      <div style="display:flex; gap:8px;">
         <input id="chatInput" placeholder="Type a message..." style="flex:1;" />
         <button onclick="sendMessage()">Send</button>
       </div>
@@ -76,7 +83,7 @@
   </section>
 
   <!-- ABOUT TAB -->
-  <section id="aboutTab" style="display:none;">
+  <section id="aboutTab">
     <h2 style="text-align:center;">About</h2>
     <p>Welcome to LinkHub — organize your links, chat live, and explore public links!</p>
   </section>
@@ -102,10 +109,9 @@
   // =================== TAB SYSTEM ===================
   function showTab(tabId) {
     const tabs = ['linksTab', 'chatTab', 'publicLinksTab', 'aboutTab'];
-    tabs.forEach(id => {
-      document.getElementById(id).style.display = (id === tabId) ? 'block' : 'none';
-    });
+    tabs.forEach(id => { document.getElementById(id).style.display = (id === tabId) ? 'block' : 'none'; });
   }
+  showTab('linksTab');
 
   // =================== LINKS LOGIC ===================
   let links = JSON.parse(localStorage.getItem('links')) || [
@@ -132,7 +138,6 @@
          });
   }
   renderLinks();
-
   function addLink() {
     const name=document.getElementById('linkName').value.trim();
     const url=document.getElementById('linkURL').value.trim();
@@ -141,6 +146,20 @@
     links.push({name,url,category}); saveLinks(); renderLinks();
     document.getElementById('linkName').value=''; document.getElementById('linkURL').value='';
   }
+
+  // =================== PUBLIC LINKS ===================
+  const publicLinks = [];
+  function renderPublicLinks(){
+    const container = document.getElementById('publicLinksContainer');
+    container.innerHTML='';
+    publicLinks.forEach(link=>{
+      const card=document.createElement('div'); card.className='card';
+      const info=document.createElement('div'); info.className='card-info';
+      const anchor=document.createElement('a'); anchor.href=link.url; anchor.target='_blank'; anchor.textContent=link.name;
+      info.appendChild(anchor); card.appendChild(info); container.appendChild(card);
+    });
+  }
+  renderPublicLinks();
 
   // =================== LIVE CHAT ===================
   const firebaseConfig = {
@@ -154,30 +173,36 @@
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
   let currentRoom = null;
-  function joinRoom() {
+
+  function createRoom(){
     const room = document.getElementById('roomName').value.trim();
     const pass = document.getElementById('roomPassword').value.trim();
     if(!room||!pass) return alert('Enter room name and password');
-    const roomRef = db.ref('rooms/' + room);
-    roomRef.once('value', snap => {
-      if(snap.exists() && snap.val().password!==pass){alert('Wrong password'); return;}
-      else roomRef.set({password:pass});
-      currentRoom = room;
-      document.getElementById('chatArea').style.display='block';
-      document.getElementById('messages').innerHTML='';
+    db.ref('rooms/'+room).set({password:pass, messages:{}});
+    alert('Room created! You can now join it.');
+  }
+
+  function joinRoom(){
+    const room = document.getElementById('roomName').value.trim();
+    const pass = document.getElementById('roomPassword').value.trim();
+    if(!room||!pass) return alert('Enter room name and password');
+    const roomRef = db.ref('rooms/'+room);
+    roomRef.once('value', snap=>{
+      if(!snap.exists()){ alert('Room does not exist'); return; }
+      if(snap.val().password!==pass){ alert('Wrong password'); return; }
+      currentRoom = room; document.getElementById('chatArea').style.display='block'; document.getElementById('messages').innerHTML='';
       roomRef.child('messages').off();
-      roomRef.child('messages').on('child_added', snap => {
-        const msg = document.createElement('div'); msg.textContent = snap.val(); msg.style.marginBottom='6px';
+      roomRef.child('messages').on('child_added', s=>{
+        const msg=document.createElement('div'); msg.textContent=s.val(); msg.style.marginBottom='6px';
         document.getElementById('messages').appendChild(msg);
       });
     });
   }
+
   function sendMessage(){
     if(!currentRoom) return;
-    const input=document.getElementById('chatInput');
-    const text=input.value.trim(); if(!text) return;
-    db.ref('rooms/'+currentRoom+'/messages').push(text);
-    input.value='';
+    const input=document.getElementById('chatInput'); const text=input.value.trim(); if(!text) return;
+    db.ref('rooms/'+currentRoom+'/messages').push(text); input.value='';
   }
 </script>
 
