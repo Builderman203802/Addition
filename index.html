@@ -238,5 +238,90 @@ function toast(msg){
 function toggleTheme(){ document.body.classList.toggle('dark'); }
 render();
 </script>
+
+
+<!-- ================= CHAT TAB (PHASE: LIVE CHAT) ================= -->
+<section id="chatTab" style="display:none; padding:20px; max-width:520px; margin:auto;">
+  <h2 style="text-align:center;">Live Chat Rooms</h2>
+
+  <div class="card" style="flex-direction:column; gap:10px;">
+    <input id="roomName" placeholder="Room name" />
+    <input id="roomPassword" type="password" placeholder="Room password" />
+    <button onclick="joinRoom()">Create / Join Room</button>
+  </div>
+
+  <div id="chatArea" style="display:none; margin-top:20px;">
+    <div id="messages" style="height:260px; overflow-y:auto; background:white; border-radius:12px; padding:10px; margin-bottom:10px;"></div>
+    <div style="display:flex; gap:10px;">
+      <input id="chatInput" placeholder="Type a message..." style="flex:1;" />
+      <button onclick="sendMessage()">Send</button>
+    </div>
+  </div>
+</section>
+
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+
+<script>
+  /* ================= FIREBASE CONFIG =================
+     Replace these values with your own Firebase project keys
+  */
+  const firebaseConfig = {
+  apiKey: "AIzaSyALYWhJMp4GZMBFWiSYAMXKruatPTLguWM",
+  authDomain: "linkhub-chat.firebaseapp.com",
+  projectId: "linkhub-chat",
+  storageBucket: "linkhub-chat.firebasestorage.app",
+  messagingSenderId: "767419596281",
+  appId: "1:767419596281:web:71abdb6a3b21a17e67d128"
+};
+
+  firebase.initializeApp(firebaseConfig);
+  const db = firebase.database();
+
+  let currentRoom = null;
+
+  function joinRoom() {
+    const room = document.getElementById('roomName').value.trim();
+    const pass = document.getElementById('roomPassword').value.trim();
+    if (!room || !pass) return alert('Enter room name and password');
+
+    const roomRef = db.ref('rooms/' + room);
+
+    roomRef.once('value', snap => {
+      if (snap.exists()) {
+        if (snap.val().password !== pass) {
+          alert('Wrong password');
+          return;
+        }
+      } else {
+        roomRef.set({ password: pass });
+      }
+
+      currentRoom = room;
+      document.getElementById('chatArea').style.display = 'block';
+      document.getElementById('messages').innerHTML = '';
+
+      roomRef.child('messages').off();
+      roomRef.child('messages').on('child_added', snap => {
+        const msg = document.createElement('div');
+        msg.textContent = snap.val();
+        msg.style.marginBottom = '6px';
+        document.getElementById('messages').appendChild(msg);
+      });
+    });
+  }
+
+  function sendMessage() {
+    if (!currentRoom) return;
+    const input = document.getElementById('chatInput');
+    const text = input.value.trim();
+    if (!text) return;
+
+    db.ref('rooms/' + currentRoom + '/messages').push(text);
+    input.value = '';
+  }
+</script>
+
 </body>
 </html>
