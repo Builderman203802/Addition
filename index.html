@@ -86,14 +86,14 @@ footer { height:220px; }
     <input id="username" placeholder="Username">
     <input id="roomName" placeholder="Room Name">
     <input id="roomPassword" placeholder="Room Password">
-    <button onclick="createRoom()">Create Room</button>
-    <button onclick="joinRoom()">Join Room</button>
-    <button onclick="leaveRoom()">Leave Room</button>
+    <button id="createBtn">Create Room</button>
+    <button id="joinBtn">Join Room</button>
+    <button id="leaveBtn">Leave Room</button>
 
     <div id="chatInterface" style="display:none">
       <div id="messages"></div>
       <input id="messageInput" placeholder="Type message">
-      <button onclick="sendMessage()">Send</button>
+      <button id="sendBtn">Send</button>
     </div>
   </div>
 
@@ -122,7 +122,7 @@ footer { height:220px; }
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 <script>
-// TODO: Replace with your Firebase project config
+// REPLACE with your Firebase project config
 const firebaseConfig = {
   apiKey: "AIzaSyALYWhJMp4GZMBFWiSYAMXKruatPTLguWM",
   authDomain: "linkhub-chat.firebaseapp.com",
@@ -132,127 +132,141 @@ const firebaseConfig = {
   messagingSenderId: "767419596281",
   appId: "1:767419596281:web:71abdb6a3b21a17e67d128"
 };
-
-// Initialize Firebase
 const app = initializeApp(firebaseConfig);
 </script>
 
 <script>
-// ----- TAB SWITCHING -----
-function switchTab(tabName){
-  const tabs = document.getElementsByClassName("tabContent");
-  for(let i=0;i<tabs.length;i++){ tabs[i].style.display="none"; }
-  document.getElementById(tabName).style.display="block";
-}
-switchTab('linksTab'); // default tab
+document.addEventListener("DOMContentLoaded", function(){
 
-// ----- LINKS -----
-let links = JSON.parse(localStorage.getItem('links')) || [
-  { name:'Google', url:'https://www.google.com', category:'tools' },
-  { name:'YouTube', url:'https://www.youtube.com', category:'social' },
-  { name:'GitHub', url:'https://www.github.com', category:'school' }
-];
+  // ----- TAB SWITCH -----
+  function switchTab(tabName){
+    const tabs = document.getElementsByClassName("tabContent");
+    for(let i=0;i<tabs.length;i++){ tabs[i].style.display="none"; }
+    document.getElementById(tabName).style.display="block";
+  }
+  window.switchTab = switchTab; // make global
+  switchTab('linksTab');
 
-function saveLinks(){ localStorage.setItem('links', JSON.stringify(links)); }
+  // ----- LINKS -----
+  let links = JSON.parse(localStorage.getItem('links')) || [
+    { name:'Google', url:'https://www.google.com', category:'tools' },
+    { name:'YouTube', url:'https://www.youtube.com', category:'social' },
+    { name:'GitHub', url:'https://www.github.com', category:'school' }
+  ];
 
-function renderLinks(){
-  const container = document.getElementById('linksContainer');
-  const search = document.getElementById('searchBar').value.toLowerCase();
-  const filter = document.getElementById('filterCategory').value;
-  container.innerHTML='';
-  links.filter(link=>link.name.toLowerCase().includes(search))
-       .filter(link=>filter==='all'||link.category===filter)
-       .forEach((link,index)=>{
-         const card=document.createElement('div'); card.className='card';
-         const info=document.createElement('div'); info.className='card-info';
-         const anchor=document.createElement('a'); anchor.href=link.url; anchor.target='_blank'; anchor.textContent=link.name;
-         const cat=document.createElement('div'); cat.className='category'; cat.textContent=link.category.toUpperCase();
-         info.appendChild(anchor); info.appendChild(cat);
-         const del=document.createElement('button'); del.className='delete'; del.textContent='🗑'; del.onclick=()=>deleteLink(index);
-         card.appendChild(info); card.appendChild(del);
-         container.appendChild(card);
-       });
-}
+  function saveLinks(){ localStorage.setItem('links', JSON.stringify(links)); }
 
-function addLink(){
-  const name=document.getElementById('linkName').value.trim();
-  const url=document.getElementById('linkURL').value.trim();
-  const category=document.getElementById('linkCategory').value;
-  if(!name||!url){ alert('Enter a name and URL'); return; }
-  links.push({name,url,category}); saveLinks(); renderLinks();
-  document.getElementById('linkName').value=''; document.getElementById('linkURL').value='';
-}
+  function renderLinks(){
+    const container = document.getElementById('linksContainer');
+    const search = document.getElementById('searchBar').value.toLowerCase();
+    const filter = document.getElementById('filterCategory').value;
+    container.innerHTML='';
+    links.filter(link=>link.name.toLowerCase().includes(search))
+         .filter(link=>filter==='all'||link.category===filter)
+         .forEach((link,index)=>{
+           const card=document.createElement('div'); card.className='card';
+           const info=document.createElement('div'); info.className='card-info';
+           const anchor=document.createElement('a'); anchor.href=link.url; anchor.target='_blank'; anchor.textContent=link.name;
+           const cat=document.createElement('div'); cat.className='category'; cat.textContent=link.category.toUpperCase();
+           info.appendChild(anchor); info.appendChild(cat);
+           const del=document.createElement('button'); del.className='delete'; del.textContent='🗑'; del.onclick=()=>deleteLink(index);
+           card.appendChild(info); card.appendChild(del);
+           container.appendChild(card);
+         });
+  }
 
-function deleteLink(index){ links.splice(index,1); saveLinks(); renderLinks(); }
-renderLinks();
+  function addLink(){
+    const name=document.getElementById('linkName').value.trim();
+    const url=document.getElementById('linkURL').value.trim();
+    const category=document.getElementById('linkCategory').value;
+    if(!name||!url){ alert('Enter a name and URL'); return; }
+    links.push({name,url,category}); saveLinks(); renderLinks();
+    document.getElementById('linkName').value=''; document.getElementById('linkURL').value='';
+  }
 
-// ----- LIVE CHAT -----
-let username='', currentRoom='', roomPassword='', isHost=false;
-const db=firebase.database();
+  function deleteLink(index){ links.splice(index,1); saveLinks(); renderLinks(); }
+  renderLinks();
 
-function createRoom(){
-  username=document.getElementById("username").value.trim();
-  currentRoom=document.getElementById("roomName").value.trim();
-  roomPassword=document.getElementById("roomPassword").value;
-  if(!username || !currentRoom || !roomPassword){ alert("Fill everything"); return; }
-  db.ref("rooms/"+currentRoom).set({ password:roomPassword, host:username });
-  isHost=true;
-  joinRoom();
-}
+  // ----- LIVE CHAT -----
+  let username='', currentRoom='', roomPassword='', isHost=false;
+  const db = firebase.database();
 
-function joinRoom(){
-  username=document.getElementById("username").value.trim();
-  currentRoom=document.getElementById("roomName").value.trim();
-  roomPassword=document.getElementById("roomPassword").value;
-  db.ref("rooms/"+currentRoom).once("value").then(snapshot=>{
-    if(!snapshot.exists()){ alert("Room doesn't exist"); return; }
-    const data=snapshot.val();
-    if(data.password!==roomPassword){ alert("Wrong password"); return; }
-    if(data.host===username){ isHost=true; }
-    document.getElementById("chatInterface").style.display="block";
-    addSystemMessage(username+" joined the room");
-    listenForMessages();
-  });
-}
+  const createBtn = document.getElementById("createBtn");
+  const joinBtn = document.getElementById("joinBtn");
+  const leaveBtn = document.getElementById("leaveBtn");
+  const sendBtn = document.getElementById("sendBtn");
 
-function sendMessage(){
-  const input=document.getElementById("messageInput");
-  const text=input.value.trim();
-  if(!text) return;
-  const time=new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
-  db.ref("messages/"+currentRoom).push({ user:username, text:text, time:time, host:isHost });
-  input.value='';
-}
+  createBtn.addEventListener("click", createRoom);
+  joinBtn.addEventListener("click", joinRoom);
+  leaveBtn.addEventListener("click", leaveRoom);
+  sendBtn.addEventListener("click", sendMessage);
 
-function listenForMessages(){
-  const container=document.getElementById("messages");
-  container.innerHTML='';
-  db.ref("messages/"+currentRoom).on("child_added", snapshot=>{
-    const msg=snapshot.val();
-    const div=document.createElement("div");
-    div.innerHTML="<b>"+msg.user+(msg.host?" (Host)":"")+"</b> ("+msg.time+"): "+linkify(msg.text);
-    if(msg.user==="SYSTEM"){ div.className="system"; }
-    container.appendChild(div);
-    container.scrollTop=container.scrollHeight;
-  });
-}
+  function createRoom(){
+    username=document.getElementById("username").value.trim();
+    currentRoom=document.getElementById("roomName").value.trim();
+    roomPassword=document.getElementById("roomPassword").value;
+    if(!username || !currentRoom || !roomPassword){ alert("Fill everything"); return; }
+    db.ref("rooms/"+currentRoom).set({ password:roomPassword, host:username });
+    isHost=true;
+    joinRoom();
+  }
 
-function leaveRoom(){
-  addSystemMessage(username+" left the room");
-  document.getElementById("chatInterface").style.display="none";
-  db.ref("messages/"+currentRoom).off();
-  currentRoom='';
-}
+  function joinRoom(){
+    username=document.getElementById("username").value.trim();
+    currentRoom=document.getElementById("roomName").value.trim();
+    roomPassword=document.getElementById("roomPassword").value;
+    if(!username || !currentRoom || !roomPassword){ alert("Fill everything"); return; }
+    db.ref("rooms/"+currentRoom).once("value").then(snapshot=>{
+      if(!snapshot.exists()){ alert("Room doesn't exist"); return; }
+      const data=snapshot.val();
+      if(data.password!==roomPassword){ alert("Wrong password"); return; }
+      if(data.host===username){ isHost=true; }
+      document.getElementById("chatInterface").style.display="block";
+      addSystemMessage(username+" joined the room");
+      listenForMessages();
+    });
+  }
 
-function addSystemMessage(text){
-  const time=new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
-  db.ref("messages/"+currentRoom).push({ user:"SYSTEM", text:text, time:time, host:false });
-}
+  function leaveRoom(){
+    addSystemMessage(username+" left the room");
+    document.getElementById("chatInterface").style.display="none";
+    db.ref("messages/"+currentRoom).off();
+    currentRoom='';
+  }
 
-function linkify(text){
-  const urlRegex=/(https?:\/\/[^\s]+)/g;
-  return text.replace(urlRegex,function(url){ return '<a href="'+url+'" target="_blank">'+url+"</a>"; });
-}
+  function sendMessage(){
+    const input = document.getElementById("messageInput");
+    const text = input.value.trim();
+    if(!text) return;
+    const time = new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+    db.ref("messages/"+currentRoom).push({ user:username, text:text, time:time, host:isHost });
+    input.value='';
+  }
+
+  function listenForMessages(){
+    const container = document.getElementById("messages");
+    container.innerHTML='';
+    db.ref("messages/"+currentRoom).on("child_added", snapshot=>{
+      const msg = snapshot.val();
+      const div = document.createElement("div");
+      div.innerHTML = "<b>"+msg.user+(msg.host?" (Host)":"")+"</b> ("+msg.time+"): "+linkify(msg.text);
+      if(msg.user==="SYSTEM"){ div.className="system"; }
+      container.appendChild(div);
+      container.scrollTop = container.scrollHeight;
+    });
+  }
+
+  function addSystemMessage(text){
+    const time = new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
+    db.ref("messages/"+currentRoom).push({ user:"SYSTEM", text:text, time:time, host:false });
+  }
+
+  function linkify(text){
+    const urlRegex=/(https?:\/\/[^\s]+)/g;
+    return text.replace(urlRegex,function(url){ return '<a href="'+url+'" target="_blank">'+url+"</a>"; });
+  }
+
+}); // DOMContentLoaded
 </script>
 
 </body>
