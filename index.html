@@ -1,38 +1,39 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>LinkHub+ Live</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LinkHub+ Live Chat</title>
 
-  <!-- Firebase SDKs -->
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
+<!-- Firebase SDKs -->
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-database-compat.js"></script>
 
-  <style>
-    :root {
-      --primary:#6366f1;
-      --secondary:#22c55e;
-      --bg:#f1f5f9;
-      --card:#ffffff;
-    }
-    *{box-sizing:border-box;font-family:system-ui,-apple-system}
-    body{margin:0;background:var(--bg)}
-    header{background:linear-gradient(120deg,#6366f1,#8b5cf6);color:white;padding:16px;text-align:center;font-size:1.5rem;font-weight:700}
-    nav{display:flex;justify-content:space-around;background:white;padding:10px;position:sticky;top:0;box-shadow:0 4px 10px rgba(0,0,0,.1)}
-    nav button{border:none;background:none;font-weight:600;font-size:1rem;cursor:pointer}
-    nav button.active{color:var(--primary)}
-    main{max-width:650px;margin:auto;padding:16px}
-    section{display:none}
-    section.active{display:block}
-    .card{background:var(--card);padding:14px;border-radius:14px;box-shadow:0 6px 14px rgba(0,0,0,.12);margin-bottom:12px}
-    .btn{padding:12px;border:none;border-radius:12px;font-weight:600;cursor:pointer}
-    .primary{background:var(--primary);color:white}
-    .secondary{background:var(--secondary);color:white}
-    input{width:100%;padding:12px;border-radius:10px;border:1px solid #d1d5db;margin-bottom:8px}
-    .chat-box{height:320px;overflow-y:auto;background:white;padding:10px;border-radius:12px;margin-bottom:8px;box-shadow:inset 0 2px 6px rgba(0,0,0,.1)}
-    .msg{margin-bottom:6px;font-size:.9rem}
-  </style>
+<style>
+:root {
+  --primary:#6366f1;
+  --secondary:#22c55e;
+  --bg:#f1f5f9;
+  --card:#ffffff;
+}
+* { box-sizing:border-box; font-family: system-ui, -apple-system; }
+body { margin:0; background:var(--bg); }
+header { background:linear-gradient(120deg,#6366f1,#8b5cf6); color:white; padding:16px; text-align:center; font-size:1.5rem; font-weight:700; }
+nav { display:flex; justify-content:space-around; background:white; padding:10px; position:sticky; top:0; box-shadow:0 4px 10px rgba(0,0,0,.1); }
+nav button { border:none; background:none; font-weight:600; font-size:1rem; cursor:pointer; }
+nav button.active { color:var(--primary); }
+main { max-width:650px; margin:auto; padding:16px; }
+section { display:none; }
+section.active { display:block; }
+.card { background:var(--card); padding:14px; border-radius:14px; box-shadow:0 6px 14px rgba(0,0,0,.12); margin-bottom:12px; }
+.btn { padding:12px; border:none; border-radius:12px; font-weight:600; cursor:pointer; }
+.primary { background:var(--primary); color:white; }
+.secondary { background:var(--secondary); color:white; }
+input { width:100%; padding:12px; border-radius:10px; border:1px solid #d1d5db; margin-bottom:8px; }
+.chat-box { height:320px; overflow-y:auto; background:white; padding:10px; border-radius:12px; margin-bottom:8px; box-shadow: inset 0 2px 6px rgba(0,0,0,.1); }
+.msg { margin-bottom:6px; font-size:.9rem; }
+.system-msg { color:#6b7280; font-style:italic; }
+</style>
 </head>
 <body>
 
@@ -59,6 +60,7 @@
   <input id="password" placeholder="Room password" type="password" />
   <button class="btn primary" onclick="createRoom()">Create Room</button>
   <button class="btn secondary" onclick="joinRoom()">Join Room</button>
+  <button class="btn secondary" onclick="leaveRoom()">Leave Room</button>
 
   <div class="chat-box" id="chatBox"></div>
   <input id="message" placeholder="Type a message" />
@@ -66,27 +68,29 @@
 </section>
 
 <section id="about">
-  <div class="card">This is a real-time Firebase-powered live chat that works across all devices.</div>
+  <div class="card">LinkHub+ is a utility-first social workspace built for real-time collaboration. Share links, communicate live, and work together without algorithms or follower pressure.</div>
 </section>
 
 </main>
 
 <script>
-  /* FIREBASE CONFIG — REPLACE WITH YOURS */
  const firebaseConfig = {
   apiKey: "AIzaSyALYWhJMp4GZMBFWiSYAMXKruatPTLguWM",
   authDomain: "linkhub-chat.firebaseapp.com",
+  databaseURL: "https://linkhub-chat-default-rtdb.firebaseio.com",
   projectId: "linkhub-chat",
   storageBucket: "linkhub-chat.firebasestorage.app",
   messagingSenderId: "767419596281",
   appId: "1:767419596281:web:71abdb6a3b21a17e67d128"
 };
-  
+
   firebase.initializeApp(firebaseConfig);
   const db = firebase.database();
 
   let currentRoom = null;
+  let hostUser = null;
 
+  // Tabs
   function switchTab(tab){
     document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
     document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
@@ -94,50 +98,60 @@
     document.getElementById('tab-'+tab).classList.add('active');
   }
 
-  /* LINKS */
+  // LINKS
   let links = JSON.parse(localStorage.getItem('links')) || [];
   function addLink(){
-    const n=linkName.value,u=linkURL.value;
-    if(!n||!u) return alert('Missing');
+    const n=linkName.value.trim(), u=linkURL.value.trim();
+    if(!n||!u) return alert('Missing name or URL');
     links.push({n,u});
     localStorage.setItem('links',JSON.stringify(links));
     renderLinks();
-    linkName.value='';linkURL.value='';
+    linkName.value=''; linkURL.value='';
   }
   function renderLinks(){
     linksList.innerHTML='';
     links.forEach(l=>{
-      const d=document.createElement('div');
-      d.className='card';
+      const d=document.createElement('div'); d.className='card';
       d.innerHTML=`<a href="${l.u}" target="_blank">${l.n}</a>`;
       linksList.appendChild(d);
-    })
+    });
   }
   renderLinks();
 
-  /* CHAT */
+  // CHAT
   function createRoom(){
-    const r=room.value,p=password.value;
-    if(!r||!p) return alert('Missing info');
-    db.ref('rooms/'+r).set({password:p});
+    const r=room.value.trim(), p=password.value.trim(), u=username.value.trim()||'Host';
+    if(!r||!p) return alert('Missing room or password');
+    db.ref('rooms/'+r).set({password:p, host:u});
+    hostUser = u;
     joinRoom();
+    addSystemMessage(`${u} created the room.`);
   }
 
   function joinRoom(){
-    const r=room.value,p=password.value;
+    const r=room.value.trim(), p=password.value.trim(), u=username.value.trim()||'Guest';
     db.ref('rooms/'+r).once('value',snap=>{
       if(!snap.exists()||snap.val().password!==p) return alert('Invalid room or password');
-      currentRoom=r;
+      currentRoom=r; hostUser = snap.val().host;
       listenForMessages();
-      alert('Joined room');
+      addSystemMessage(`${u} joined the room.`);
     });
   }
 
+  function leaveRoom(){
+    if(!currentRoom) return alert('Not in a room');
+    const u=username.value.trim()||'Guest';
+    addSystemMessage(`${u} left the room.`);
+    currentRoom=null;
+    chatBox.innerHTML='';
+    alert('You left the room');
+  }
+
   function sendMessage(){
-    if(!currentRoom) return alert('Join room');
-    const msg=message.value,u=username.value||'Guest';
+    if(!currentRoom) return alert('Join a room first');
+    const msg=message.value.trim(), u=username.value.trim()||'Guest';
     if(!msg) return;
-    db.ref('messages/'+currentRoom).push({user:u,text:msg,time:Date.now()});
+    db.ref('messages/'+currentRoom).push({user:u,text:msg,time:Date.now(),system:false});
     message.value='';
   }
 
@@ -147,11 +161,29 @@
     db.ref('messages/'+currentRoom).on('child_added',snap=>{
       const m=snap.val();
       const d=document.createElement('div');
-      d.className='msg';
-      d.textContent=`${m.user}: ${m.text}`;
+      let time = new Date(m.time).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+      if(m.system){
+        d.className='msg system-msg';
+        d.textContent=m.text;
+      } else {
+        d.className='msg';
+        let userLabel = (m.user===hostUser)? `${m.user} (Host)` : m.user;
+        let text = linkify(m.text);
+        d.innerHTML=`<strong>${userLabel}</strong> [${time}]: ${text}`;
+      }
       chatBox.appendChild(d);
       chatBox.scrollTop=chatBox.scrollHeight;
     });
+  }
+
+  function addSystemMessage(text){
+    if(!currentRoom) return;
+    db.ref('messages/'+currentRoom).push({user:'System', text, time:Date.now(), system:true});
+  }
+
+  function linkify(text){
+    const urlRegex = /(https?:\/\/[^\s]+)/g;
+    return text.replace(urlRegex, url => `<a href='${url}' target='_blank'>${url}</a>`);
   }
 </script>
 
