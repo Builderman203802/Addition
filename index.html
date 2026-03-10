@@ -113,12 +113,14 @@ input { width:100%; padding:12px; border-radius:10px; border:1px solid #d1d5db; 
   let hostUser = null;
 
   // Tabs
-  function switchTab(tab){
-    document.querySelectorAll('section').forEach(s=>s.classList.remove('active'));
-    document.querySelectorAll('nav button').forEach(b=>b.classList.remove('active'));
-    document.getElementById(tab).classList.add('active');
-    document.getElementById('tab-'+tab).classList.add('active');
+  function openTab(tabId) {
+  const tabs = document.getElementsByClassName("tabContent");
+  for (let i = 0; i < tabs.length; i++) {
+    tabs[i].style.display = "none";
   }
+
+  document.getElementById(tabId).style.display = "block";
+}
 
   // LINKS
   let links = JSON.parse(localStorage.getItem('links')) || [];
