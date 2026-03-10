@@ -5,62 +5,62 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0" />
 <title>LinkHub + Live Chat</title>
 <style>
-/* General */
+/* GENERAL STYLES */
 * { box-sizing:border-box; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif; }
 body { margin:0; background:#f0f2f5; color:#111827; }
 header { position:sticky; top:0; background:#6366f1; color:white; padding:16px 20px; text-align:center; font-size:1.4rem; font-weight:bold; z-index:10; }
 
-/* Tabs */
-.tabButtons { display:flex; justify-content:center; gap:10px; background:#e5e7eb; padding:10px; }
+/* TABS */
+.tabButtons { display:flex; justify-content:center; gap:10px; background:#e5e7eb; padding:10px; flex-wrap:wrap; }
 .tabButtons button { padding:10px 20px; border:none; border-radius:12px; cursor:pointer; font-weight:bold; background:#6366f1; color:white; transition:0.3s; }
 .tabButtons button:hover { background:#4f46e5; }
 .tabContent { display:none; padding:20px; max-width:520px; margin:auto; }
 
-/* Links Section */
+/* LINKS SECTION */
 .controls { display:flex; gap:10px; margin-bottom:16px; }
 .controls input, .controls select { flex:1; padding:12px; border-radius:12px; border:none; font-size:1rem; box-shadow:0 4px 10px rgba(0,0,0,0.1); }
 .links { display:flex; flex-direction:column; gap:14px; }
 .card { background:white; padding:16px 18px; border-radius:16px; box-shadow:0 6px 14px rgba(0,0,0,0.12); display:flex; justify-content:space-between; align-items:center; }
 .card-info { display:flex; flex-direction:column; }
-.card a { text-decoration:none; color:#1f2933; font-weight:600; font-size:1rem; }
+.card a { text-decoration:none; color:#1f2933; font-weight:600; font-size:1rem; word-break:break-word; }
 .category { font-size:0.8rem; color:#6b7280; margin-top:4px; }
 .delete { background:none; border:none; color:#ef4444; font-size:1.2rem; cursor:pointer; }
 
-/* Add Link Panel */
-.add-panel { position:fixed; bottom:0; left:0; right:0; background:white; padding:16px; box-shadow:0 -6px 20px rgba(0,0,0,0.15); border-top-left-radius:20px; border-top-right-radius:20px; }
-.add-panel input, .add-panel select { width:100%; padding:14px; margin-bottom:10px; border-radius:12px; border:1px solid #d1d5db; font-size:1rem; }
-.add-panel button { width:100%; padding:14px; border:none; border-radius:14px; background:#6366f1; color:white; font-size:1.1rem; font-weight:bold; cursor:pointer; }
+/* ADD LINK PANEL - LOWERED */
+.add-panel { position:fixed; bottom:10px; left:50%; transform:translateX(-50%); width:90%; max-width:520px; background:white; padding:14px; box-shadow:0 -6px 20px rgba(0,0,0,0.15); border-radius:20px; z-index:20; }
+.add-panel input, .add-panel select { width:100%; padding:12px; margin-bottom:8px; border-radius:12px; border:1px solid #d1d5db; font-size:1rem; }
+.add-panel button { width:100%; padding:12px; border:none; border-radius:14px; background:#6366f1; color:white; font-size:1.1rem; font-weight:bold; cursor:pointer; }
 
-/* Chat Section */
+/* CHAT SECTION */
 #chatTab input { padding:10px; margin:5px 0; border-radius:8px; border:1px solid #ccc; width:100%; }
 #chatTab button { padding:10px; margin:5px 0; border:none; border-radius:8px; background:#6366f1; color:white; font-weight:bold; cursor:pointer; width:100%; }
 #messages { height:300px; overflow-y:auto; border:1px solid #ccc; margin-top:10px; padding:10px; background:white; border-radius:12px; }
 #messages div.system { font-style:italic; color:gray; }
 
-/* About Section */
+/* ABOUT SECTION */
 #aboutTab { text-align:center; font-size:1rem; color:#111827; padding:20px; }
 
-/* Footer */
+/* FOOTER */
 footer { height:220px; }
 
-/* Responsive */
-@media(max-width:600px){ .controls { flex-direction:column; } }
+/* RESPONSIVE */
+@media(max-width:600px){ .controls { flex-direction:column; } .tabButtons { flex-direction:column; } }
 </style>
 </head>
 <body>
 
 <header>LinkHub</header>
 
-<!-- Tabs -->
+<!-- TABS -->
 <div class="tabButtons">
-<button onclick="switchTab('linksTab')">Links</button>
-<button onclick="switchTab('publicLinksTab')">Public Links</button>
-<button onclick="switchTab('chatTab')">Live Chat</button>
-<button onclick="switchTab('aboutTab')">About</button>
+  <button onclick="switchTab('linksTab')">Links</button>
+  <button onclick="switchTab('publicLinksTab')">Public Links</button>
+  <button onclick="switchTab('chatTab')">Live Chat</button>
+  <button onclick="switchTab('aboutTab')">About</button>
 </div>
 
 <main>
-  <!-- Links Section -->
+  <!-- LINKS TAB -->
   <div id="linksTab" class="tabContent">
     <div class="controls">
       <input type="text" id="searchBar" placeholder="Search links..." onkeyup="renderLinks()" />
@@ -75,12 +75,12 @@ footer { height:220px; }
     <div class="links" id="linksContainer"></div>
   </div>
 
-  <!-- Public Links Section -->
+  <!-- PUBLIC LINKS TAB -->
   <div id="publicLinksTab" class="tabContent">
     <p>Public links coming soon.</p>
   </div>
 
-  <!-- Live Chat Section -->
+  <!-- LIVE CHAT TAB -->
   <div id="chatTab" class="tabContent">
     <h2>Live Chat</h2>
     <input id="username" placeholder="Username">
@@ -97,13 +97,13 @@ footer { height:220px; }
     </div>
   </div>
 
-  <!-- About Section -->
+  <!-- ABOUT TAB -->
   <div id="aboutTab" class="tabContent">
     <p>LinkHub is your utility-first social workspace with real-time collaboration. Organize links, chat live, and collaborate seamlessly across devices.</p>
   </div>
 </main>
 
-<!-- Add Link Panel -->
+<!-- ADD LINK PANEL -->
 <div class="add-panel">
   <input type="text" id="linkName" placeholder="Link name" />
   <input type="url" id="linkURL" placeholder="https://example.com" />
@@ -118,7 +118,7 @@ footer { height:220px; }
 
 <footer></footer>
 
-<!-- Firebase Scripts -->
+<!-- FIREBASE -->
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
 <script>
@@ -141,18 +141,16 @@ const app = initializeApp(firebaseConfig);
 // ----- TAB SWITCHING -----
 function switchTab(tabName){
   const tabs = document.getElementsByClassName("tabContent");
-  for(let i=0;i<tabs.length;i++){
-    tabs[i].style.display="none";
-  }
+  for(let i=0;i<tabs.length;i++){ tabs[i].style.display="none"; }
   document.getElementById(tabName).style.display="block";
 }
-switchTab('linksTab'); // Default tab
+switchTab('linksTab'); // default tab
 
-// ----- LINKS LOGIC -----
+// ----- LINKS -----
 let links = JSON.parse(localStorage.getItem('links')) || [
-  { name: 'Google', url: 'https://www.google.com', category: 'tools' },
-  { name: 'YouTube', url: 'https://www.youtube.com', category: 'social' },
-  { name: 'GitHub', url: 'https://www.github.com', category: 'school' }
+  { name:'Google', url:'https://www.google.com', category:'tools' },
+  { name:'YouTube', url:'https://www.youtube.com', category:'social' },
+  { name:'GitHub', url:'https://www.github.com', category:'school' }
 ];
 
 function saveLinks(){ localStorage.setItem('links', JSON.stringify(links)); }
@@ -162,55 +160,50 @@ function renderLinks(){
   const search = document.getElementById('searchBar').value.toLowerCase();
   const filter = document.getElementById('filterCategory').value;
   container.innerHTML='';
-  links.filter(link => link.name.toLowerCase().includes(search))
-       .filter(link => filter==='all'||link.category===filter)
+  links.filter(link=>link.name.toLowerCase().includes(search))
+       .filter(link=>filter==='all'||link.category===filter)
        .forEach((link,index)=>{
-         const card = document.createElement('div');
-         card.className='card';
-         const info = document.createElement('div'); info.className='card-info';
-         const anchor = document.createElement('a'); anchor.href=link.url; anchor.target='_blank'; anchor.textContent=link.name;
-         const cat = document.createElement('div'); cat.className='category'; cat.textContent=link.category.toUpperCase();
+         const card=document.createElement('div'); card.className='card';
+         const info=document.createElement('div'); info.className='card-info';
+         const anchor=document.createElement('a'); anchor.href=link.url; anchor.target='_blank'; anchor.textContent=link.name;
+         const cat=document.createElement('div'); cat.className='category'; cat.textContent=link.category.toUpperCase();
          info.appendChild(anchor); info.appendChild(cat);
-         const del = document.createElement('button'); del.className='delete'; del.textContent='🗑'; del.onclick=()=>deleteLink(index);
+         const del=document.createElement('button'); del.className='delete'; del.textContent='🗑'; del.onclick=()=>deleteLink(index);
          card.appendChild(info); card.appendChild(del);
          container.appendChild(card);
        });
 }
 
 function addLink(){
-  const name = document.getElementById('linkName').value.trim();
-  const url = document.getElementById('linkURL').value.trim();
-  const category = document.getElementById('linkCategory').value;
-  if(!name||!url) return alert('Enter a name and URL');
-  links.push({name,url,category});
-  saveLinks();
-  renderLinks();
-  document.getElementById('linkName').value='';
-  document.getElementById('linkURL').value='';
+  const name=document.getElementById('linkName').value.trim();
+  const url=document.getElementById('linkURL').value.trim();
+  const category=document.getElementById('linkCategory').value;
+  if(!name||!url){ alert('Enter a name and URL'); return; }
+  links.push({name,url,category}); saveLinks(); renderLinks();
+  document.getElementById('linkName').value=''; document.getElementById('linkURL').value='';
 }
 
 function deleteLink(index){ links.splice(index,1); saveLinks(); renderLinks(); }
-
 renderLinks();
 
-// ----- LIVE CHAT LOGIC -----
-let username=""; let currentRoom=""; let roomPassword=""; let isHost=false;
-const db = firebase.database();
+// ----- LIVE CHAT -----
+let username='', currentRoom='', roomPassword='', isHost=false;
+const db=firebase.database();
 
 function createRoom(){
-  username = document.getElementById("username").value.trim();
-  currentRoom = document.getElementById("roomName").value.trim();
-  roomPassword = document.getElementById("roomPassword").value;
+  username=document.getElementById("username").value.trim();
+  currentRoom=document.getElementById("roomName").value.trim();
+  roomPassword=document.getElementById("roomPassword").value;
   if(!username || !currentRoom || !roomPassword){ alert("Fill everything"); return; }
   db.ref("rooms/"+currentRoom).set({ password:roomPassword, host:username });
-  isHost = true;
+  isHost=true;
   joinRoom();
 }
 
 function joinRoom(){
-  username = document.getElementById("username").value.trim();
-  currentRoom = document.getElementById("roomName").value.trim();
-  roomPassword = document.getElementById("roomPassword").value;
+  username=document.getElementById("username").value.trim();
+  currentRoom=document.getElementById("roomName").value.trim();
+  roomPassword=document.getElementById("roomPassword").value;
   db.ref("rooms/"+currentRoom).once("value").then(snapshot=>{
     if(!snapshot.exists()){ alert("Room doesn't exist"); return; }
     const data=snapshot.val();
@@ -228,16 +221,16 @@ function sendMessage(){
   if(!text) return;
   const time=new Date().toLocaleTimeString([], {hour:'2-digit',minute:'2-digit'});
   db.ref("messages/"+currentRoom).push({ user:username, text:text, time:time, host:isHost });
-  input.value="";
+  input.value='';
 }
 
 function listenForMessages(){
   const container=document.getElementById("messages");
-  container.innerHTML="";
+  container.innerHTML='';
   db.ref("messages/"+currentRoom).on("child_added", snapshot=>{
     const msg=snapshot.val();
     const div=document.createElement("div");
-    div.innerHTML = "<b>"+msg.user+(msg.host?" (Host)":"")+"</b> ("+msg.time+"): "+linkify(msg.text);
+    div.innerHTML="<b>"+msg.user+(msg.host?" (Host)":"")+"</b> ("+msg.time+"): "+linkify(msg.text);
     if(msg.user==="SYSTEM"){ div.className="system"; }
     container.appendChild(div);
     container.scrollTop=container.scrollHeight;
@@ -248,7 +241,7 @@ function leaveRoom(){
   addSystemMessage(username+" left the room");
   document.getElementById("chatInterface").style.display="none";
   db.ref("messages/"+currentRoom).off();
-  currentRoom="";
+  currentRoom='';
 }
 
 function addSystemMessage(text){
@@ -258,7 +251,7 @@ function addSystemMessage(text){
 
 function linkify(text){
   const urlRegex=/(https?:\/\/[^\s]+)/g;
-  return text.replace(urlRegex, function(url){ return '<a href="'+url+'" target="_blank">'+url+"</a>"; });
+  return text.replace(urlRegex,function(url){ return '<a href="'+url+'" target="_blank">'+url+"</a>"; });
 }
 </script>
 
