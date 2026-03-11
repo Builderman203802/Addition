@@ -132,7 +132,7 @@ const firebaseConfig = {
   messagingSenderId: "767419596281",
   appId: "1:767419596281:web:71abdb6a3b21a17e67d128"
 };
-const app = initializeApp(firebaseConfig);
+firebase.initializeApp(firebaseConfig);
 </script>
 
 <script>
@@ -161,7 +161,7 @@ document.addEventListener("DOMContentLoaded", function(){
     const search = document.getElementById('searchBar').value.toLowerCase();
     const filter = document.getElementById('filterCategory').value;
     container.innerHTML='';
-    links.filter(link=>link.name.toLowerCase().includes(search))
+    links.filter(link => (link.name || "").toLowerCase().includes(search))
          .filter(link=>filter==='all'||link.category===filter)
          .forEach((link,index)=>{
            const card=document.createElement('div'); card.className='card';
