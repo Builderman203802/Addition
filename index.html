@@ -219,9 +219,6 @@ LinkHub is a utility-first workspace for organizing links and collaborating in l
 <!-- FIREBASE CONFIG -->
 
 <script>
-
-const firebaseConfig = {
-
 const firebaseConfig = {
   apiKey: "AIzaSyALYWhJMp4GZMBFWiSYAMXKruatPTLguWM",
   authDomain: "linkhub-chat.firebaseapp.com",
@@ -235,13 +232,17 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 
 const db = firebase.database();
-
 </script>
 
 <!-- MAIN SITE CODE -->
 
 <script>
-
+function createRoom() {
+  db.ref("rooms/test").set({
+    hello: "world"
+  });
+}
+</script>
 /* TABS */
 
 function switchTab(id){
