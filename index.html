@@ -1,6 +1,6 @@
 ```html
 <!DOCTYPE html>
-<html lang="en">
+<html>
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -9,8 +9,8 @@
 <style>
 
 body{
-font-family:Arial,Helvetica,sans-serif;
 margin:0;
+font-family:Arial;
 background:#f3f4f6;
 }
 
@@ -89,7 +89,7 @@ width:90%;
 max-width:600px;
 }
 
-.addpanel input, .addpanel select{
+.addpanel input,.addpanel select{
 width:100%;
 padding:10px;
 margin-bottom:6px;
@@ -141,6 +141,7 @@ font-style:italic;
 </div>
 
 <!-- LINKS -->
+
 <div id="links" class="tab">
 
 <input id="search" placeholder="Search..." oninput="renderLinks()">
@@ -157,12 +158,14 @@ font-style:italic;
 
 </div>
 
-<!-- PUBLIC -->
+<!-- PUBLIC LINKS -->
+
 <div id="public" class="tab">
 Public links coming soon.
 </div>
 
 <!-- CHAT -->
+
 <div id="chat" class="tab">
 
 <input id="username" placeholder="Username">
@@ -185,8 +188,9 @@ Public links coming soon.
 </div>
 
 <!-- ABOUT -->
+
 <div id="about" class="tab">
-LinkHub is a utility-first workspace where you can organize links and collaborate in real-time chat rooms.
+LinkHub is a utility-first workspace for organizing links and collaborating in live chat rooms.
 </div>
 
 <!-- ADD LINK PANEL -->
@@ -207,16 +211,17 @@ LinkHub is a utility-first workspace where you can organize links and collaborat
 
 </div>
 
-<!-- FIREBASE -->
+<!-- FIREBASE LIBRARIES -->
 
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-app.js"></script>
 <script src="https://www.gstatic.com/firebasejs/8.10.1/firebase-database.js"></script>
+
+<!-- FIREBASE CONFIG -->
 
 <script>
 
 const firebaseConfig = {
 
-/* PASTE YOUR FIREBASE CONFIG HERE */
 const firebaseConfig = {
   apiKey: "AIzaSyALYWhJMp4GZMBFWiSYAMXKruatPTLguWM",
   authDomain: "linkhub-chat.firebaseapp.com",
@@ -226,13 +231,14 @@ const firebaseConfig = {
   messagingSenderId: "767419596281",
   appId: "1:767419596281:web:71abdb6a3b21a17e67d128"
 };
-};
 
 firebase.initializeApp(firebaseConfig);
 
 const db = firebase.database();
 
 </script>
+
+<!-- MAIN SITE CODE -->
 
 <script>
 
@@ -253,26 +259,24 @@ switchTab("links");
 let links = JSON.parse(localStorage.getItem("links") || "[]");
 
 function saveLinks(){
-
 localStorage.setItem("links",JSON.stringify(links));
-
 }
 
 function renderLinks(){
 
-const container = document.getElementById("linksContainer");
+const container=document.getElementById("linksContainer");
 
-const search = (document.getElementById("search").value || "").toLowerCase();
+const search=(document.getElementById("search").value||"").toLowerCase();
 
-const filter = document.getElementById("filter").value;
+const filter=document.getElementById("filter").value;
 
 container.innerHTML="";
 
 links
 
-.filter(l => (l.name||"").toLowerCase().includes(search))
+.filter(l=>(l.name||"").toLowerCase().includes(search))
 
-.filter(l => filter==="all" || l.category===filter)
+.filter(l=>filter==="all"||l.category===filter)
 
 .forEach((link,i)=>{
 
@@ -297,17 +301,14 @@ container.appendChild(card);
 function addLink(){
 
 const name=document.getElementById("linkName").value;
-
 const url=document.getElementById("linkURL").value;
-
 const cat=document.getElementById("linkCategory").value;
 
-if(!name || !url) return alert("Fill fields");
+if(!name||!url) return alert("Fill fields");
 
 links.push({name,url,category:cat});
 
 saveLinks();
-
 renderLinks();
 
 }
@@ -333,19 +334,14 @@ let isHost=false;
 function createRoom(){
 
 username=document.getElementById("username").value;
-
 room=document.getElementById("room").value;
-
 const pass=document.getElementById("password").value;
 
 if(!username||!room||!pass) return alert("Fill fields");
 
 db.ref("rooms/"+room).set({
-
 password:pass,
-
 host:username
-
 });
 
 isHost=true;
@@ -357,9 +353,7 @@ joinRoom();
 function joinRoom(){
 
 username=document.getElementById("username").value;
-
 room=document.getElementById("room").value;
-
 const pass=document.getElementById("password").value;
 
 db.ref("rooms/"+room).once("value").then(snap=>{
@@ -403,15 +397,10 @@ if(!text) return;
 const time=new Date().toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"});
 
 db.ref("messages/"+room).push({
-
 user:username,
-
 text:text,
-
 time:time,
-
 host:isHost
-
 });
 
 document.getElementById("messageInput").value="";
@@ -431,13 +420,9 @@ const m=snap.val();
 const div=document.createElement("div");
 
 div.innerHTML=`
-
 <b class="${m.host?"host":""}">${m.user}</b>
-
 (${m.time}):
-
 ${linkify(m.text)}
-
 `;
 
 if(m.user==="SYSTEM") div.className="system";
@@ -455,13 +440,9 @@ function addSystem(text){
 const time=new Date().toLocaleTimeString([], {hour:"2-digit",minute:"2-digit"});
 
 db.ref("messages/"+room).push({
-
 user:"SYSTEM",
-
 text:text,
-
 time:time
-
 });
 
 }
